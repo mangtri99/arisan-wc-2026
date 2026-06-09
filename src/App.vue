@@ -4,20 +4,28 @@ import { usePoolStore } from './stores/pool'
 import AppHeader from './components/AppHeader.vue'
 import SetupForm from './components/SetupForm.vue'
 import DrawReveal from './components/DrawReveal.vue'
+import DrawSequential from './components/DrawSequential.vue'
 import Dashboard from './components/Dashboard.vue'
 
 const store = usePoolStore()
 
-// fase lokal hanya untuk animasi reveal; sumber kebenaran tetap status di store
 const revealing = ref(false)
 
-const phase = computed<'setup' | 'reveal' | 'dashboard'>(() => {
+const phase = computed<'setup' | 'reveal' | 'sequential' | 'dashboard'>(() => {
   if (revealing.value) return 'reveal'
-  return store.pool.status === 'draft' ? 'setup' : 'dashboard'
+  const { status } = store.pool
+  if (status === 'draft') return 'setup'
+  if (status === 'drawing') return 'sequential'
+  return 'dashboard'
 })
 
 const stepLabel = computed(() =>
-  ({ setup: 'Atur arisan', reveal: 'Mengundi', dashboard: 'Hasil undian' })[phase.value],
+  ({
+    setup: 'Atur arisan',
+    reveal: 'Mengundi',
+    sequential: 'Undian per pemain',
+    dashboard: 'Hasil undian',
+  })[phase.value],
 )
 
 function onDraw() {
@@ -34,13 +42,12 @@ function onRedraw() {
 <template>
   <div class="min-h-screen pb-16">
     <AppHeader :step="stepLabel" />
-
     <main>
       <SetupForm v-if="phase === 'setup'" @draw="onDraw" />
       <DrawReveal v-else-if="phase === 'reveal'" @done="onRevealDone" />
+      <DrawSequential v-else-if="phase === 'sequential'" />
       <Dashboard v-else @redraw="onRedraw" />
     </main>
-
     <footer class="mx-auto mt-8 w-full max-w-5xl px-5 text-center text-xs text-chalk-dim">
       Buat seru-seruan bareng teman. Data 48 peserta sesuai hasil undian FIFA World Cup 2026.
     </footer>
