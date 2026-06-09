@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-pitch text-chalk font-sans antialiased;
+    /* faint chalk pitch-lines on a stadium-night ground */
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, rgba(16, 185, 122, 0.12), transparent 60%),
+      linear-gradient(rgba(237, 242, 234, 0.025) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 44px;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* tabular figures everywhere money/odds appear */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-chalk-dim;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-chalk-dim;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-pitch-line bg-pitch-panel px-3.5 py-2.5 text-chalk
+           placeholder:text-chalk-dim/60 outline-none transition
+           focus:border-turf focus:ring-2 focus:ring-turf/30;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gold px-5 py-3
+           font-display text-base uppercase tracking-wide text-pitch
+           transition hover:bg-gold/90 active:translate-y-px
+           disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-pitch-line
+           bg-transparent px-4 py-2.5 text-sm font-semibold text-chalk
+           transition hover:border-chalk/40 hover:bg-pitch-panel;
+  }
+
+  .panel {
+    @apply rounded-2xl border border-pitch-line bg-pitch-panel/70 backdrop-blur;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
