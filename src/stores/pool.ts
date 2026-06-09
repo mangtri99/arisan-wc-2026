@@ -148,6 +148,7 @@ export const usePoolStore = defineStore('pool', {
         pool.seed,
       )
       pool.players = players
+      pool.drawnPlayerCount = 0
       pool.status = 'drawn'
       pool.championTeamId = null
       pool.champion2TeamId = null
@@ -188,7 +189,7 @@ export const usePoolStore = defineStore('pool', {
 
     finalizeSequentialDraw() {
       const { pool } = this
-      if (pool.drawnPlayerCount >= pool.playerNames.length) {
+      if (pool.status === 'drawing' && pool.drawnPlayerCount >= pool.playerNames.length) {
         pool.status = 'drawn'
         pool.drawnAt = new Date().toISOString()
         this.persist()
