@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { TEAMS, TEAM_BY_ID } from '../data/teams'
-import { drawTeams, randomSeed, shufflePlayerOrder } from '../lib/draw'
+import { drawTeams, randomSeed, shufflePlayerOrder, drawForPlayer } from '../lib/draw'
 import type { Player, Pool, Team } from '../types'
 
 const STORAGE_KEY = 'arisan-pd-2026'
@@ -142,7 +142,7 @@ export const usePoolStore = defineStore('pool', {
       const { pool } = this
       if (pool.playerNames.length === 0 || this.overCapacity) return
       const { players } = drawTeams(
-        TEAMS,
+        this.effectiveTeams,
         pool.playerNames,
         pool.teamsPerPlayer,
         pool.seed,
@@ -150,8 +150,49 @@ export const usePoolStore = defineStore('pool', {
       pool.players = players
       pool.status = 'drawn'
       pool.championTeamId = null
+      pool.champion2TeamId = null
+      pool.champion3TeamId = null
       pool.drawnAt = new Date().toISOString()
       this.persist()
+    },
+
+    startSequentialDraw() {
+      const { pool } = this
+      if (pool.playerNames.length === 0 || this.overCapacity) return
+      pool.players = []
+      pool.drawnPlayerCount = 0
+      pool.championTeamId = null
+      pool.champion2TeamId = null
+      pool.champion3TeamId = null
+      pool.drawnAt = null
+      pool.status = 'drawing'
+      this.persist()
+    },
+
+    drawNextPlayer() {
+      const { pool } = this
+      if (pool.status !== 'drawing') return
+      if (pool.drawnPlayerCount >= pool.playerNames.length) return
+      const playerOrder = shufflePlayerOrder(pool.playerNames, pool.seed)
+      const player = drawForPlayer(
+        this.effectiveTeams,
+        playerOrder,
+        pool.teamsPerPlayer,
+        pool.seed,
+        pool.drawnPlayerCount,
+      )
+      pool.players.push(player)
+      pool.drawnPlayerCount++
+      this.persist()
+    },
+
+    finalizeSequentialDraw() {
+      const { pool } = this
+      if (pool.drawnPlayerCount >= pool.playerNames.length) {
+        pool.status = 'drawn'
+        pool.drawnAt = new Date().toISOString()
+        this.persist()
+      }
     },
 
     setChampion(teamId: string) {
@@ -160,9 +201,31 @@ export const usePoolStore = defineStore('pool', {
       this.persist()
     },
 
+    setChampion2(teamId: string) {
+      this.pool.champion2TeamId = teamId
+      this.persist()
+    },
+
+    setChampion3(teamId: string) {
+      this.pool.champion3TeamId = teamId
+      this.persist()
+    },
+
+    settlePool() {
+      this.pool.status = 'settled'
+      this.persist()
+    },
+
     clearChampion() {
       this.pool.championTeamId = null
+      this.pool.champion2TeamId = null
+      this.pool.champion3TeamId = null
       this.pool.status = 'drawn'
+      this.persist()
+    },
+
+    setIncludedTeams(teamIds: string[] | null) {
+      this.pool.includedTeamIds = teamIds
       this.persist()
     },
 
