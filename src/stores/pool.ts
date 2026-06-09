@@ -16,6 +16,14 @@ function blankPool(): Pool {
     status: 'draft',
     championTeamId: null,
     drawnAt: null,
+    // v2
+    includedTeamIds: null,
+    drawMode: 'batch',
+    prizeMode: 'winner-takes-all',
+    prizeSplit: { first: 50, second: 30, third: 20 },
+    drawnPlayerCount: 0,
+    champion2TeamId: null,
+    champion3TeamId: null,
   }
 }
 
