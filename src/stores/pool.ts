@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { TEAMS, TEAM_BY_ID, TOTAL_TEAMS } from '../data/teams'
-import { drawTeams, randomSeed } from '../lib/draw'
+import { TEAMS, TEAM_BY_ID } from '../data/teams'
+import { drawTeams, randomSeed, shufflePlayerOrder } from '../lib/draw'
 import type { Player, Pool, Team } from '../types'
 
 const STORAGE_KEY = 'arisan-pd-2026'
@@ -42,28 +42,40 @@ export const usePoolStore = defineStore('pool', {
 
   getters: {
     allTeams: (): Team[] => TEAMS,
-    maxPlayers(state): number {
-      return Math.floor(TOTAL_TEAMS / Math.max(1, state.pool.teamsPerPlayer))
+
+    effectiveTeams(state): Team[] {
+      if (!state.pool.includedTeamIds) return TEAMS
+      const ids = new Set(state.pool.includedTeamIds)
+      return TEAMS.filter((t) => ids.has(t.id))
     },
+
+    maxPlayers(): number {
+      return Math.floor(this.effectiveTeams.length / Math.max(1, this.pool.teamsPerPlayer))
+    },
+
     teamsNeeded(state): number {
       return state.pool.playerNames.length * state.pool.teamsPerPlayer
     },
+
     overCapacity(): boolean {
-      return this.teamsNeeded > TOTAL_TEAMS
+      return this.teamsNeeded > this.effectiveTeams.length
     },
+
     pot(state): number {
       return state.pool.players.length * state.pool.betAmount
     },
+
     bankTeamIds(state): string[] {
       const taken = new Set(state.pool.players.flatMap((p) => p.teamIds))
-      return TEAMS.filter((t) => !taken.has(t.id)).map((t) => t.id)
+      return this.effectiveTeams.filter((t) => !taken.has(t.id)).map((t) => t.id)
     },
+
     championTeam(state): Team | null {
       return state.pool.championTeamId
         ? TEAM_BY_ID[state.pool.championTeamId] ?? null
         : null
     },
-    // Winner-takes-all: pemegang negara juara mengambil seluruh pot.
+
     winner(state): Player | null {
       if (!state.pool.championTeamId) return null
       return (
@@ -72,8 +84,38 @@ export const usePoolStore = defineStore('pool', {
         ) ?? null
       )
     },
+
     championInBank(): boolean {
       return this.pool.status === 'settled' && !!this.pool.championTeamId && !this.winner
+    },
+
+    playerDrawOrder(state): string[] {
+      if (state.pool.drawMode !== 'sequential') return state.pool.playerNames
+      return shufflePlayerOrder(state.pool.playerNames, state.pool.seed)
+    },
+
+    winners(): Array<{
+      place: 1 | 2 | 3
+      player: Player | null
+      teamId: string | null
+      amount: number
+    }> {
+      const { pool } = this
+      if (pool.prizeMode !== 'tiered') return []
+      return (
+        [
+          { place: 1 as const, teamId: pool.championTeamId, pct: pool.prizeSplit.first },
+          { place: 2 as const, teamId: pool.champion2TeamId, pct: pool.prizeSplit.second },
+          { place: 3 as const, teamId: pool.champion3TeamId, pct: pool.prizeSplit.third },
+        ] as const
+      ).map(({ place, teamId, pct }) => ({
+        place,
+        teamId,
+        player: teamId
+          ? pool.players.find((p) => p.teamIds.includes(teamId)) ?? null
+          : null,
+        amount: Math.round(this.pot * (pct / 100)),
+      }))
     },
   },
 
