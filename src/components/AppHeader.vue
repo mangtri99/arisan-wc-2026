@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import IconWC2026 from './IconWC2026.vue'
 defineProps<{ step: string }>()
 </script>
 
@@ -7,7 +6,7 @@ defineProps<{ step: string }>()
   <header class="mx-auto w-full max-w-5xl px-5 pt-8 sm:pt-12">
     <div class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <IconWC2026 class="h-12 w-12 shrink-0" />
+        <img src="/wc2026.webp" alt="FIFA World Cup 2026" class="h-12 w-auto shrink-0" />
         <div>
           <p class="eyebrow">FIFA World Cup · USA · Canada · Mexico</p>
           <h1 class="font-display text-2xl uppercase leading-none tracking-wide text-chalk sm:text-3xl">
