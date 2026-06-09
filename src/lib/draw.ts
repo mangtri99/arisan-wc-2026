@@ -56,6 +56,35 @@ export function drawTeams(
   return { players, bankTeamIds }
 }
 
+/**
+ * Acak urutan pemain menggunakan seed berbeda dari team shuffle.
+ * Suffix ':order' agar RNG stream tidak berkorelasi dengan shuffle negara.
+ */
+export function shufflePlayerOrder(names: string[], seed: string): string[] {
+  return shuffle([...names], makeRng(seed + ':order'))
+}
+
+/**
+ * Hitung teams untuk satu pemain di posisi playerIndex dari urutan yang sudah diacak.
+ * Deterministik dan provably fair: seed sama → hasil identik.
+ */
+export function drawForPlayer(
+  teams: Team[],
+  playerOrder: string[],
+  teamsPerPlayer: number,
+  seed: string,
+  playerIndex: number,
+): Player {
+  const shuffled = shuffle([...teams], makeRng(seed))
+  const start = playerIndex * teamsPerPlayer
+  const name = playerOrder[playerIndex]
+  return {
+    id: `p${playerIndex}-${slug(name)}`,
+    name,
+    teamIds: shuffled.slice(start, start + teamsPerPlayer).map((t) => t.id),
+  }
+}
+
 export function randomSeed(): string {
   // seed pendek yang mudah dibacakan & dicocokkan bareng-bareng
   return Math.random().toString(36).slice(2, 8).toUpperCase()
