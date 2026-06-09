@@ -101,7 +101,7 @@ export const usePoolStore = defineStore('pool', {
       amount: number
     }> {
       const { pool } = this
-      if (pool.prizeMode !== 'tiered') return []
+      if (pool.prizeMode !== 'tiered' || pool.status !== 'settled') return []
       return (
         [
           { place: 1 as const, teamId: pool.championTeamId, pct: pool.prizeSplit.first },

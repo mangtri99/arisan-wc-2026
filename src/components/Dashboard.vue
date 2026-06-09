@@ -179,6 +179,7 @@ function playerBadge(p: Player): string | null {
           :index="i"
           :champion-ids="championIds"
           :is-winner="isWinner(p)"
+          :badge="playerBadge(p)"
         />
       </div>
 

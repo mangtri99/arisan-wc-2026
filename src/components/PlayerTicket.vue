@@ -7,6 +7,7 @@ const props = defineProps<{
   player: Player
   index: number
   isWinner: boolean
+  badge: string | null
   championIds: string[]
 }>()
 
@@ -30,8 +31,8 @@ const teams = computed(() => props.player.teamIds.map((id) => TEAM_BY_ID[id]))
         >{{ index + 1 }}</span>
         <h3 class="font-display text-lg uppercase tracking-wide text-chalk">{{ player.name }}</h3>
       </div>
-      <span v-if="isWinner" class="rounded-full bg-gold px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-pitch">
-        🏆 Juara
+      <span v-if="badge" class="rounded-full bg-gold px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-pitch">
+        {{ badge }}
       </span>
     </div>
 
