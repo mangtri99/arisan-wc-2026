@@ -67,7 +67,7 @@ function handleDownload() {
                 width:'28px', height:'28px', borderRadius:'50%',
                 border: store.winner?.id === p.id ? '1px solid #F2C84B' : '1px solid #16352A',
                 color: store.winner?.id === p.id ? '#F2C84B' : '#8DA496',
-                display:'flex', alignItems:'center', justifyContent:'center',
+                display:'inline-block', textAlign:'center', lineHeight:'26px',
                 fontSize:'12px', fontWeight:'bold', flexShrink:'0',
               }">{{ i + 1 }}</span>
               <span style="font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#EDF2EA;">{{ p.name }}</span>
