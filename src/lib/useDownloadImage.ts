@@ -10,11 +10,11 @@ export function useDownloadImage() {
 
     // html-to-image tidak bisa capture elemen di luar viewport,
     // pindahkan sementara ke posisi visible lalu kembalikan
-    const prev = { position: el.style.position, left: el.style.left, top: el.style.top, opacity: el.style.opacity }
+    const prev = { position: el.style.position, left: el.style.left, top: el.style.top, zIndex: el.style.zIndex }
     el.style.position = 'fixed'
     el.style.left = '0'
     el.style.top = '0'
-    el.style.opacity = '0'
+    el.style.zIndex = '-9999'
 
     try {
       const dataUrl = await toPng(el, {
@@ -29,7 +29,7 @@ export function useDownloadImage() {
       el.style.position = prev.position
       el.style.left = prev.left
       el.style.top = prev.top
-      el.style.opacity = prev.opacity
+      el.style.zIndex = prev.zIndex
       downloading.value = false
     }
   }
