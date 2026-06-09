@@ -7,7 +7,7 @@ const props = defineProps<{
   player: Player
   index: number
   isWinner: boolean
-  championId: string | null
+  championIds: string[]
 }>()
 
 const teams = computed(() => props.player.teamIds.map((id) => TEAM_BY_ID[id]))
@@ -40,7 +40,7 @@ const teams = computed(() => props.player.teamIds.map((id) => TEAM_BY_ID[id]))
         v-for="t in teams"
         :key="t.id"
         class="flex items-center gap-3 rounded-lg px-2 py-1.5"
-        :class="championId === t.id ? 'bg-gold/15' : ''"
+        :class="championIds.includes(t.id) ? 'bg-gold/15' : ''"
       >
         <span class="text-2xl leading-none">{{ t.flag }}</span>
         <span class="font-medium text-chalk">{{ t.name }}</span>
