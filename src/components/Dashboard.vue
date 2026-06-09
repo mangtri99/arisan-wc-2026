@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePoolStore } from '../stores/pool'
 import { rupiah } from '../lib/format'
 import { TEAM_BY_ID } from '../data/teams'
+import { useDownloadImage } from '../lib/useDownloadImage'
 import PlayerTicket from './PlayerTicket.vue'
 import SettlePanel from './SettlePanel.vue'
 
@@ -10,6 +11,13 @@ const store = usePoolStore()
 const emit = defineEmits<{ (e: 'redraw'): void }>()
 
 const bankTeams = computed(() => store.bankTeamIds.map((id) => TEAM_BY_ID[id]))
+
+const captureArea = ref<HTMLElement | null>(null)
+const { downloading, downloadImage } = useDownloadImage()
+
+function handleDownload() {
+  if (captureArea.value) downloadImage(captureArea.value)
+}
 </script>
 
 <template>
@@ -34,10 +42,20 @@ const bankTeams = computed(() => store.bankTeamIds.map((id) => TEAM_BY_ID[id]))
           <p class="tnum font-display text-3xl tracking-wider text-chalk-dim">{{ store.pool.seed }}</p>
         </div>
       </div>
-      <button class="btn-ghost" @click="emit('redraw')">Undi ulang</button>
+      <div class="flex flex-wrap gap-3">
+        <button
+          class="btn-ghost"
+          :disabled="downloading"
+          @click="handleDownload"
+        >
+          <span v-if="downloading">⏳ Menyiapkan…</span>
+          <span v-else>⬇️ Download Hasil</span>
+        </button>
+        <button class="btn-ghost" @click="emit('redraw')">Undi ulang</button>
+      </div>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+    <div ref="captureArea" class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
       <!-- tiket pemain -->
       <div class="grid gap-4 sm:grid-cols-2">
         <PlayerTicket
