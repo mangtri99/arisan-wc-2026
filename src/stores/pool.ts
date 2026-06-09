@@ -212,6 +212,11 @@ export const usePoolStore = defineStore('pool', {
       this.persist()
     },
 
+    setChampionOnly(teamId: string) {
+      this.pool.championTeamId = teamId
+      this.persist()
+    },
+
     settlePool() {
       this.pool.status = 'settled'
       this.persist()

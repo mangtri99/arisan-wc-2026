@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { usePoolStore } from '../stores/pool'
 import { rupiah } from '../lib/format'
 import { TEAM_BY_ID } from '../data/teams'
+import type { Team } from '../types'
 
 const store = usePoolStore()
 
@@ -10,6 +11,7 @@ const assignedTeams = computed(() =>
   store.pool.players
     .flatMap((p) => p.teamIds)
     .map((id) => TEAM_BY_ID[id])
+    .filter((t): t is Team => t != null)
     .sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name)),
 )
 
@@ -41,8 +43,7 @@ function takenByOthers(place: 1 | 2 | 3): Set<string> {
 function setForPlace(place: 1 | 2 | 3, teamId: string) {
   if (place === 1) {
     if (store.pool.prizeMode === 'tiered') {
-      store.pool.championTeamId = teamId
-      store.persist()
+      store.setChampionOnly(teamId)
     } else {
       store.setChampion(teamId)
     }
