@@ -59,7 +59,13 @@ function onRedraw() {
         class="hover:text-chalk-high underline"
         >Mang Tri</a
       >
-      x Claude
+      x
+      <a
+        href="https://claude.ai"
+        target="_blank"
+        class="hover:text-chalk-high underline"
+        >Claude</a
+      >
     </footer>
   </div>
 </template>
