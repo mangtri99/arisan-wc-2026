@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import html2canvas from 'html2canvas'
+import { toPng } from 'html-to-image'
 
 export function useDownloadImage() {
   const downloading = ref(false)
@@ -8,15 +8,13 @@ export function useDownloadImage() {
     if (downloading.value) return
     downloading.value = true
     try {
-      const canvas = await html2canvas(el, {
+      const dataUrl = await toPng(el, {
         backgroundColor: '#06140E',
-        scale: 2,
-        useCORS: true,
-        logging: false,
+        pixelRatio: 2,
       })
       const link = document.createElement('a')
       link.download = filename
-      link.href = canvas.toDataURL('image/png')
+      link.href = dataUrl
       link.click()
     } finally {
       downloading.value = false
