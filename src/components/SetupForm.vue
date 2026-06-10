@@ -102,7 +102,7 @@ function updateSplit(key: keyof PrizeSplit, val: number) {
           <label class="field-label">Negara per orang</label>
           <div class="flex gap-2">
             <button
-              v-for="n in [1, 2, 3]"
+              v-for="n in [1, 2, 3, 4, 5]"
               :key="n"
               type="button"
               class="flex-1 rounded-lg border py-2.5 font-display text-lg transition"
