@@ -204,6 +204,22 @@ function updateSplit(key: keyof PrizeSplit, val: number) {
 
     <!-- Pilihan negara -->
     <div class="panel mt-6 p-5 sm:p-6">
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <button type="button" class="btn-ghost" @click="store.applyKnockout32()">
+          🏆 Pakai 32 Besar
+        </button>
+        <button
+          v-if="store.pool.includedTeamIds !== null"
+          type="button"
+          class="btn-ghost"
+          @click="store.setIncludedTeams(null)"
+        >
+          Semua 48 negara
+        </button>
+        <span class="text-xs text-chalk-dim">
+          Batasi undian ke tim yang lolos babak gugur (undi ulang).
+        </span>
+      </div>
       <button
         type="button"
         class="flex w-full items-center justify-between"
