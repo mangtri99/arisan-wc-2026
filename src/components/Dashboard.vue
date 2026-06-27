@@ -6,6 +6,7 @@ import { TEAM_BY_ID } from "../data/teams";
 import { useDownloadImage } from "../lib/useDownloadImage";
 import PlayerTicket from "./PlayerTicket.vue";
 import SettlePanel from "./SettlePanel.vue";
+import BracketView from "./BracketView.vue";
 import type { Player } from "../types";
 
 const store = usePoolStore();
@@ -431,5 +432,7 @@ function playerBadge(p: Player): string | null {
         </div>
       </div>
     </div>
+
+    <BracketView />
   </section>
 </template>
