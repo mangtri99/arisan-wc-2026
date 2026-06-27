@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { TEAMS, TEAM_BY_ID } from '../data/teams'
+import { QUALIFIED_32 } from '../data/bracket'
 import { drawTeams, randomSeed, shufflePlayerOrder, drawForPlayer } from '../lib/draw'
 import type { Player, Pool, Team } from '../types'
 
@@ -232,6 +233,19 @@ export const usePoolStore = defineStore('pool', {
 
     setIncludedTeams(teamIds: string[] | null) {
       this.pool.includedTeamIds = teamIds
+      this.persist()
+    },
+
+    applyKnockout32() {
+      const { pool } = this
+      pool.includedTeamIds = [...QUALIFIED_32]
+      pool.players = []
+      pool.drawnPlayerCount = 0
+      pool.championTeamId = null
+      pool.champion2TeamId = null
+      pool.champion3TeamId = null
+      pool.drawnAt = null
+      pool.status = 'draft'
       this.persist()
     },
 
