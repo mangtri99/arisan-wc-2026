@@ -14,9 +14,6 @@ importers:
       html-to-image:
         specifier: ^1.11.13
         version: 1.11.13
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
       pinia:
         specifier: ^2.1.7
         version: 2.3.1(typescript@5.9.3)(vue@3.5.35(typescript@5.9.3))
@@ -30,6 +27,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.19
         version: 10.5.0(postcss@8.5.15)
+      jsdom:
+        specifier: ^29
+        version: 29.1.1
       postcss:
         specifier: ^8.4.38
         version: 8.5.15
