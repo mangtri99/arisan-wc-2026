@@ -13,6 +13,7 @@ export interface Player {
 
 export type PoolStatus = 'draft' | 'drawing' | 'drawn' | 'settled'
 export type DrawMode = 'batch' | 'sequential'
+export type SequentialOrder = 'random' | 'input'
 export type PrizeMode = 'winner-takes-all' | 'tiered'
 
 export interface PrizeSplit {
@@ -34,6 +35,7 @@ export interface Pool {
   // v2
   includedTeamIds: string[] | null
   drawMode: DrawMode
+  sequentialOrder: SequentialOrder
   prizeMode: PrizeMode
   prizeSplit: PrizeSplit
   drawnPlayerCount: number

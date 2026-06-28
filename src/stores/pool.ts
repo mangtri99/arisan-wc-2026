@@ -19,6 +19,7 @@ function blankPool(): Pool {
     // v2
     includedTeamIds: null,
     drawMode: 'batch',
+    sequentialOrder: 'random',
     prizeMode: 'winner-takes-all',
     prizeSplit: { first: 50, second: 30, third: 20 },
     drawnPlayerCount: 0,
@@ -91,6 +92,7 @@ export const usePoolStore = defineStore('pool', {
 
     playerDrawOrder(state): string[] {
       if (state.pool.drawMode !== 'sequential') return state.pool.playerNames
+      if (state.pool.sequentialOrder === 'input') return state.pool.playerNames
       return shufflePlayerOrder(state.pool.playerNames, state.pool.seed)
     },
 
@@ -174,7 +176,7 @@ export const usePoolStore = defineStore('pool', {
       const { pool } = this
       if (pool.status !== 'drawing') return
       if (pool.drawnPlayerCount >= pool.playerNames.length) return
-      const playerOrder = shufflePlayerOrder(pool.playerNames, pool.seed)
+      const playerOrder = this.playerDrawOrder
       const player = drawForPlayer(
         this.effectiveTeams,
         playerOrder,

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { usePoolStore } from '../stores/pool'
 import { rupiah } from '../lib/format'
-import type { DrawMode, PrizeMode, PrizeSplit } from '../types'
+import type { DrawMode, PrizeMode, PrizeSplit, SequentialOrder } from '../types'
 import BracketDiagram from './BracketDiagram.vue'
 
 const store = usePoolStore()
@@ -47,6 +47,11 @@ function onDraw() {
 
 function setDrawMode(mode: DrawMode) {
   store.pool.drawMode = mode
+  store.persist()
+}
+
+function setSequentialOrder(order: SequentialOrder) {
+  store.pool.sequentialOrder = order
   store.persist()
 }
 
@@ -161,6 +166,28 @@ function updateSplit(key: keyof PrizeSplit, val: number) {
               ? 'Semua dapat negara sekaligus.'
               : 'Tiap pemain undi sendiri secara bergiliran.' }}
           </p>
+
+          <!-- Urutan giliran (khusus per pemain) -->
+          <div v-if="store.pool.drawMode === 'sequential'" class="mt-3">
+            <label class="field-label">Urutan giliran</label>
+            <div class="flex gap-2">
+              <button
+                v-for="o in [{ v: 'input' as SequentialOrder, label: 'Urutan nama' }, { v: 'random' as SequentialOrder, label: 'Acak' }]"
+                :key="o.v"
+                type="button"
+                class="flex-1 rounded-lg border py-2 text-sm transition"
+                :class="store.pool.sequentialOrder === o.v
+                  ? 'border-turf bg-turf/15 text-chalk'
+                  : 'border-pitch-line text-chalk-dim hover:border-chalk/30'"
+                @click="setSequentialOrder(o.v)"
+              >{{ o.label }}</button>
+            </div>
+            <p class="mt-1.5 text-xs text-chalk-dim">
+              {{ store.pool.sequentialOrder === 'input'
+                ? 'Giliran ikut urutan nama yang kamu ketik.'
+                : 'Giliran diacak (provably fair dari seed).' }}
+            </p>
+          </div>
         </div>
 
         <!-- Mode hadiah -->
