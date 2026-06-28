@@ -3,7 +3,7 @@ import { TEAMS, TEAM_BY_ID } from '../data/teams'
 import { drawTeams, randomSeed, shufflePlayerOrder, drawForPlayer } from '../lib/draw'
 import type { Player, Pool, Team } from '../types'
 
-const STORAGE_KEY = 'arisan-pd-2026'
+const STORAGE_KEY = 'arisan-pd-2026-v3'
 
 function blankPool(): Pool {
   return {
