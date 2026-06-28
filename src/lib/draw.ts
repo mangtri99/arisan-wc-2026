@@ -1,4 +1,7 @@
 import type { Player, Team } from '../types'
+import { LEFT_TEAM_IDS } from '../data/bracket'
+
+const LEFT_SET = new Set(LEFT_TEAM_IDS)
 
 // RNG ber-seed (mulberry32) supaya undian bisa diulang & diverifikasi.
 // Seed string yang sama -> hasil undian identik => "provably fair".
@@ -32,9 +35,47 @@ export interface DrawResult {
   bankTeamIds: string[] // negara yang tidak kebagian pemain (milik "rumah")
 }
 
+export interface Allocation {
+  leftCount: number
+  rightCount: number
+}
+
 /**
- * Bagikan negara ke setiap pemain secara acak & unik (tanpa duplikat).
- * Jumlah negara per orang TETAP. Sisa negara masuk ke "bank".
+ * Tentukan berapa negara dari bracket KIRI vs KANAN untuk tiap pemain.
+ * Genap: split rata. Ganjil: selisih 1, arah extra di-balance antar pemain
+ * (seeded) supaya kedua pool (16/16) tidak timpang. Deterministik thd seed.
+ */
+export function computeAllocation(
+  numPlayers: number,
+  teamsPerPlayer: number,
+  seed: string,
+): Allocation[] {
+  const base = Math.floor(teamsPerPlayer / 2)
+  const hasExtra = teamsPerPlayer % 2 === 1
+  if (!hasExtra) {
+    return Array.from({ length: numPlayers }, () => ({ leftCount: base, rightCount: base }))
+  }
+  // Bagi arah extra: setengah ke kiri, setengah ke kanan, lalu diacak.
+  const nLeft = Math.ceil(numPlayers / 2)
+  const dirs = Array.from({ length: numPlayers }, (_, i) => (i < nLeft ? 'L' : 'R'))
+  const shuffled = shuffle(dirs, makeRng(seed + ':dir'))
+  return shuffled.map((d) =>
+    d === 'L'
+      ? { leftCount: base + 1, rightCount: base }
+      : { leftCount: base, rightCount: base + 1 },
+  )
+}
+
+function splitBySide(teams: Team[]): { left: Team[]; right: Team[] } {
+  const left: Team[] = []
+  const right: Team[] = []
+  for (const t of teams) (LEFT_SET.has(t.id) ? left : right).push(t)
+  return { left, right }
+}
+
+/**
+ * Bagikan negara ke setiap pemain secara acak & unik (tanpa duplikat),
+ * dengan keseimbangan bracket kiri/kanan. Sisa negara masuk ke "bank".
  */
 export function drawTeams(
   teams: Team[],
@@ -42,17 +83,30 @@ export function drawTeams(
   teamsPerPlayer: number,
   seed: string,
 ): DrawResult {
-  const order = shuffle(teams, makeRng(seed))
+  const { left, right } = splitBySide(teams)
+  const shuffledL = shuffle(left, makeRng(seed + ':L'))
+  const shuffledR = shuffle(right, makeRng(seed + ':R'))
+  const alloc = computeAllocation(playerNames.length, teamsPerPlayer, seed)
+
+  let lOff = 0
+  let rOff = 0
   const players: Player[] = playerNames.map((name, idx) => {
-    const start = idx * teamsPerPlayer
+    const { leftCount, rightCount } = alloc[idx]
+    const lt = shuffledL.slice(lOff, lOff + leftCount)
+    const rt = shuffledR.slice(rOff, rOff + rightCount)
+    lOff += leftCount
+    rOff += rightCount
     return {
       id: `p${idx}-${slug(name)}`,
       name,
-      teamIds: order.slice(start, start + teamsPerPlayer).map((t) => t.id),
+      teamIds: [...lt, ...rt].map((t) => t.id),
     }
   })
-  const used = playerNames.length * teamsPerPlayer
-  const bankTeamIds = order.slice(used).map((t) => t.id)
+
+  const bankTeamIds = [
+    ...shuffledL.slice(lOff).map((t) => t.id),
+    ...shuffledR.slice(rOff).map((t) => t.id),
+  ]
   return { players, bankTeamIds }
 }
 
@@ -75,13 +129,26 @@ export function drawForPlayer(
   seed: string,
   playerIndex: number,
 ): Player {
-  const shuffled = shuffle([...teams], makeRng(seed))
-  const start = playerIndex * teamsPerPlayer
+  const { left, right } = splitBySide(teams)
+  const shuffledL = shuffle(left, makeRng(seed + ':L'))
+  const shuffledR = shuffle(right, makeRng(seed + ':R'))
+  const alloc = computeAllocation(playerOrder.length, teamsPerPlayer, seed)
+
+  // offset kumulatif sampai pemain ini (konsisten dengan drawTeams).
+  let lOff = 0
+  let rOff = 0
+  for (let i = 0; i < playerIndex; i++) {
+    lOff += alloc[i].leftCount
+    rOff += alloc[i].rightCount
+  }
+  const { leftCount, rightCount } = alloc[playerIndex]
+  const lt = shuffledL.slice(lOff, lOff + leftCount)
+  const rt = shuffledR.slice(rOff, rOff + rightCount)
   const name = playerOrder[playerIndex]
   return {
     id: `p${playerIndex}-${slug(name)}`,
     name,
-    teamIds: shuffled.slice(start, start + teamsPerPlayer).map((t) => t.id),
+    teamIds: [...lt, ...rt].map((t) => t.id),
   }
 }
 

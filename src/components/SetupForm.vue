@@ -3,13 +3,12 @@ import { computed, ref } from 'vue'
 import { usePoolStore } from '../stores/pool'
 import { rupiah } from '../lib/format'
 import type { DrawMode, PrizeMode, PrizeSplit } from '../types'
-import TeamPicker from './TeamPicker.vue'
+import BracketDiagram from './BracketDiagram.vue'
 
 const store = usePoolStore()
 const emit = defineEmits<{ (e: 'draw'): void }>()
 
 const namesText = ref(store.pool.playerNames.join('\n'))
-const showTeamPicker = ref(false)
 
 const parsedNames = computed(() =>
   namesText.value
@@ -202,29 +201,6 @@ function updateSplit(key: keyof PrizeSplit, val: number) {
       </div>
     </div>
 
-    <!-- Pilihan negara -->
-    <div class="panel mt-6 p-5 sm:p-6">
-      <button
-        type="button"
-        class="flex w-full items-center justify-between"
-        @click="showTeamPicker = !showTeamPicker"
-      >
-        <div class="text-left">
-          <p class="eyebrow">Negara peserta</p>
-          <p class="mt-0.5 text-sm text-chalk-dim">
-            {{ store.pool.includedTeamIds === null ? '48' : store.pool.includedTeamIds.length }} negara dipilih
-          </p>
-        </div>
-        <span class="text-chalk-dim">{{ showTeamPicker ? '▲' : '▼' }}</span>
-      </button>
-      <div v-if="showTeamPicker" class="mt-4">
-        <TeamPicker
-          :model-value="store.pool.includedTeamIds"
-          @update:model-value="store.setIncludedTeams($event)"
-        />
-      </div>
-    </div>
-
     <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
       <p class="text-sm text-chalk-dim">
         <template v-if="store.pool.prizeMode === 'winner-takes-all'">
@@ -238,6 +214,16 @@ function updateSplit(key: keyof PrizeSplit, val: number) {
       <button class="btn-primary" :disabled="!canDraw" @click="onDraw">
         {{ store.pool.drawMode === 'batch' ? 'Undi Sekarang' : 'Mulai Undian Giliran' }}
       </button>
+    </div>
+
+    <!-- Bagan fase gugur -->
+    <div class="panel mt-8 p-5 sm:p-6">
+      <p class="eyebrow mb-1">Bagan Fase Gugur</p>
+      <h2 class="mb-1 font-display text-xl uppercase tracking-wide">32 Besar → Final</h2>
+      <p class="mb-4 text-sm text-chalk-dim">
+        Tiap pemain dibagi rata antara bracket kiri & kanan. Geser untuk lihat seluruh bagan.
+      </p>
+      <BracketDiagram />
     </div>
   </section>
 </template>

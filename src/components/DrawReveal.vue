@@ -5,7 +5,7 @@ import { TEAMS } from '../data/teams'
 const emit = defineEmits<{ (e: 'done'): void }>()
 
 const flag = ref('🏆')
-const label = ref('Mengocok 48 negara…')
+const label = ref(`Mengocok ${TEAMS.length} negara…`)
 let timer: number | undefined
 let stopAt = 0
 
